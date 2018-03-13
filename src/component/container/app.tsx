@@ -14,7 +14,8 @@ import Link from '../../lsg/patterns/link';
 import { createMenu } from '../../electron/menu';
 import * as MobX from 'mobx';
 import { observer } from 'mobx-react';
-import { PageList } from '../../component/container/page-list';
+import { Page } from '../store/page/page';
+import { PageListOld } from './container/page-list-dropdown_old';
 import * as PathUtils from 'path';
 import { PatternListContainer } from '../../component/container/pattern-list';
 import PatternsPane from '../../lsg/patterns/panes/patterns-pane';
@@ -24,9 +25,16 @@ import { ProjectList } from '../../component/container/project-list';
 import { PropertyList } from '../../component/container/property-list';
 import PropertyPane from '../../lsg/patterns/panes/property-pane';
 import * as React from 'react';
-import Space, { Size as SpaceSize } from '../../lsg/patterns/space';
-import SplashScreen from '../../lsg/patterns/splash-screen';
-import { Store } from '../../store/store';
+import * as ReactDom from 'react-dom';
+import Space, { Size as SpaceSize } from '../lsg/patterns/space';
+import SplashScreen from '../lsg/patterns/splash-screen';
+import { Store } from '../store/store';
+
+import PageListContainer from './container/page-list-container';
+
+// prevent app zooming
+webFrame.setVisualZoomLevelLimits(1, 1);
+webFrame.setLayoutZoomLevelLimits(0, 0);
 
 globalStyles();
 
@@ -158,6 +166,7 @@ export class App extends React.Component {
 
 		return (
 			<Layout directionVertical handleClick={this.handleMainWindowClick}>
+				<PageListContainer store={this.props.store} />
 				<Chrome
 					title={title}
 					handleClick={this.handleChromeToggle}
@@ -170,7 +179,7 @@ export class App extends React.Component {
 						<SideBar key="left" directionVertical hasPaddings>
 							<ElementPane>
 								<Space sizeBottom={SpaceSize.L}>
-									<PageList />
+									<PageListOld store={this.props.store} />
 								</Space>
 								<ElementList />
 							</ElementPane>
