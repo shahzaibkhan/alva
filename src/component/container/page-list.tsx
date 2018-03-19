@@ -17,7 +17,12 @@ const PageList: React.StatelessComponent<PageListProps> = (props): JSX.Element =
 			{props.pages.map((page: PageRef, i: number) => {
 				return (
 					<Space key={i} size={Size.S}>
-						<PreviewTile name={page.getName()} />
+						<PreviewTile
+							editable={false}
+							focused={false}
+							name={page.getName()}
+							value={'placeholder'}
+						/>
 					</Space>
 				);
 			})}
