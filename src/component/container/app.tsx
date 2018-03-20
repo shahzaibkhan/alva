@@ -166,7 +166,6 @@ export class App extends React.Component {
 
 		return (
 			<Layout directionVertical handleClick={this.handleMainWindowClick}>
-				<PageListContainer store={this.props.store} />
 				<Chrome
 					title={title}
 					handleClick={this.handleChromeToggle}
@@ -175,6 +174,7 @@ export class App extends React.Component {
 					{project && <ProjectList open={this.projectListVisible} />}
 				</Chrome>
 				<MainArea>
+					<PageListContainer store={this.props.store} />
 					{project && [
 						<SideBar key="left" directionVertical hasPaddings>
 							<ElementPane>
