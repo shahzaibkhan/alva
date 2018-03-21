@@ -9,6 +9,7 @@ import { Property } from '../../store/styleguide/property/property';
 import { PropertyAnalyzer } from './property-analyzer';
 import { ReactUtils } from '../typescript/react-utils';
 import { renderReact } from '../../component/presentation/react/render';
+import { SlotAnalyzer } from './slot-analzyer';
 import { Styleguide } from '../../store/styleguide/styleguide';
 import { StyleguideAnalyzer } from '../styleguide-analyzer';
 import { Type } from '../typescript/type';
@@ -83,6 +84,9 @@ export class Analyzer extends StyleguideAnalyzer {
 				const name = this.getPatternName(patternInfo, exportInfo);
 				const pattern = new Pattern(id, name, patternInfo.implementationPath, exportInfo.name);
 				pattern.setIconPath(patternInfo.iconPath);
+
+				const slots: string[] = SlotAnalyzer.analyzeSlots(propType.type, program);
+				console.log(slots);
 
 				const properties: Property[] = PropertyAnalyzer.analyze(
 					propType.type,

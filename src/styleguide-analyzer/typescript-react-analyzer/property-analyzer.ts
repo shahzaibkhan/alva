@@ -10,6 +10,7 @@ import { NumberProperty } from '../../store/styleguide/property/number-property'
 import { ObjectProperty } from '../../store/styleguide/property/object-property';
 import { StringArrayProperty } from '../../store/styleguide/property/string-array-property';
 import { StringProperty } from '../../store/styleguide/property/string-property';
+import { TypescriptUtils } from '../typescript/typescript-utils';
 
 interface PropertyFactoryArgs {
 	id: string;
@@ -60,7 +61,7 @@ export class PropertyAnalyzer {
 		symbol: ts.Symbol,
 		typechecker: ts.TypeChecker
 	): Property | undefined {
-		const declaration = this.findTypeDeclaration(symbol) as ts.Declaration;
+		const declaration = TypescriptUtils.findTypeDeclaration(symbol) as ts.Declaration;
 
 		let type = symbol.type
 			? symbol.type
@@ -162,7 +163,7 @@ export class PropertyAnalyzer {
 				return;
 			}
 
-			const enumMemberDeclaration = PropertyAnalyzer.findTypeDeclaration(args.type.symbol);
+			const enumMemberDeclaration = TypescriptUtils.findTypeDeclaration(args.type.symbol);
 			if (!enumMemberDeclaration || !enumMemberDeclaration.parent) {
 				return;
 			}
@@ -241,27 +242,6 @@ export class PropertyAnalyzer {
 		if ((args.type.flags & ts.TypeFlags.String) === ts.TypeFlags.String) {
 			const property = new StringProperty(args.id);
 			return property;
-		}
-
-		return;
-	}
-
-	/**
-	 * Returns a TypeScript type declaration for a given symbol.
-	 * @param symbol The symbol to return the declaration for.
-	 * @return TypeScript type declaration.
-	 */
-	private static findTypeDeclaration(symbol: ts.Symbol): ts.Declaration | undefined {
-		if (symbol.valueDeclaration) {
-			return symbol.valueDeclaration;
-		}
-
-		if (symbol.declarations) {
-			return symbol.declarations[0];
-		}
-
-		if (symbol.type && symbol.type.symbol) {
-			return PropertyAnalyzer.findTypeDeclaration(symbol.type.symbol);
 		}
 
 		return;
