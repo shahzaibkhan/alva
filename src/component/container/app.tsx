@@ -31,6 +31,7 @@ import SplashScreen from '../lsg/patterns/splash-screen';
 import { Store } from '../store/store';
 
 import { PageListContainer } from './container/page-list-container';
+import { PageListPreview } from './composite/page-list-preview';
 
 // prevent app zooming
 webFrame.setVisualZoomLevelLimits(1, 1);
@@ -52,6 +53,8 @@ export class App extends React.Component {
 
 	public constructor(props: {}) {
 		super(props);
+		this.getLastChangedAuthor = this.getLastChangedAuthor.bind(this);
+		this.getLastChangedDate = this.getLastChangedDate.bind(this);
 		this.handleTabNaviagtionClick = this.handleTabNaviagtionClick.bind(this);
 		this.handleMainWindowClick = this.handleMainWindowClick.bind(this);
 		this.handleChromeToggle = this.handleChromeToggle.bind(this);
@@ -73,9 +76,15 @@ export class App extends React.Component {
 		}
 	}
 
+	}
+
+	protected getLastChangedAuthor(): string {
+		return 'Max Mustermann';
+	}
+
+	@MobX.action
 	protected handleChromeToggle(evt: React.MouseEvent<HTMLElement>): void {
 		this.projectListVisible = !this.projectListVisible;
-	}
 
 	protected handleCreateNewSpaceClick(): void {
 		let appPath: string = remote.app.getAppPath().replace('.asar', '.asar.unpacked');
@@ -174,25 +183,30 @@ export class App extends React.Component {
 					{project && <ProjectList open={this.projectListVisible} />}
 				</Chrome>
 				<MainArea>
-					<PageListContainer store={this.props.store} />
 					{project && [
-						<SideBar key="left" directionVertical hasPaddings>
-							<ElementPane>
-								<Space sizeBottom={SpaceSize.L}>
-									<PageListOld store={this.props.store} />
-								</Space>
-								<ElementList />
-							</ElementPane>
-							<PatternsPane>
-								<PatternListContainer />
-							</PatternsPane>
-						</SideBar>,
-						<PreviewPaneWrapper key="center" previewFrame={previewFramePath} />,
-						<SideBar key="right" directionVertical hasPaddings>
-							<PropertyPane>
-								<PropertyList />
-							</PropertyPane>
-						</SideBar>
+						<PageListPreview
+							lastChangedDate={this.getLastChangedDate().toString()}
+							headline={title}
+						>
+							<PageListContainer store={this.props.store} />
+						</PageListPreview>
+						// <SideBar key="left" directionVertical hasPaddings>
+						// 	<ElementPane>
+						// 		<Space sizeBottom={SpaceSize.L}>
+						// 			<PageListOld store={this.props.store} />
+						// 		</Space>
+						// 		<ElementList store={this.props.store} />
+						// 	</ElementPane>
+						// 	<PatternsPane>
+						// 		<PatternListContainer store={this.props.store} />
+						// 	</PatternsPane>
+						// </SideBar>,
+						// <PreviewPaneWrapper key="center" previewFrame={previewFramePath} />,
+						// <SideBar key="right" directionVertical hasPaddings>
+						// 	<PropertyPane>
+						// 		<PropertyList store={this.props.store} />
+						// 	</PropertyPane>
+						// </SideBar>
 					]}
 					{!project && (
 						<SplashScreen>
