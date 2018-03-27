@@ -76,10 +76,12 @@ export class App extends React.Component {
 		}
 	}
 
-	}
-
 	protected getLastChangedAuthor(): string {
 		return 'Max Mustermann';
+	}
+
+	protected getLastChangedDate(): number {
+		return Date.now();
 	}
 
 	@MobX.action
