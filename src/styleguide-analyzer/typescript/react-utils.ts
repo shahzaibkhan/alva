@@ -23,13 +23,13 @@ export class ReactUtils {
 	 * @param type The type to resolve to a React component type.
 	 * @return The well-known (Alva supported) React component type, or undefined if the given type cannot be resolved to one.
 	 */
-	public static findReactComponentType(program: ts.Program, type: Type): Type | undefined {
-		if (this.isReactComponentType(program, type.type)) {
+	public static findReactComponentType(type: Type): Type | undefined {
+		if (this.isReactComponentType(type.type)) {
 			return type;
 		}
 
 		for (const baseType of type.getBaseTypes()) {
-			const wellKnownReactType = this.findReactComponentType(program, baseType);
+			const wellKnownReactType = this.findReactComponentType(baseType);
 
 			if (wellKnownReactType) {
 				return wellKnownReactType;
@@ -57,7 +57,7 @@ export class ReactUtils {
 	 * @param type The type to analyze.
 	 * @return Whether a given type is a well-known (Alva supported) React component type,
 	 */
-	private static isReactComponentType(program: ts.Program, type: ts.Type): boolean {
+	private static isReactComponentType(type: ts.Type): boolean {
 		const symbol = type.symbol;
 		if (!symbol || !symbol.declarations) {
 			return false;
@@ -76,7 +76,7 @@ export class ReactUtils {
 	 * @param program The TypeScript program.
 	 * @param type The type to test against react node type.
 	 */
-	public static isSlotType(program: ts.Program, type: ts.Type): boolean {
+	public static isSlotType(type: ts.Type): boolean {
 		const typeSymbols: (ts.Symbol | undefined)[] =
 			type.symbol || type.aliasSymbol
 				? [type.symbol || type.aliasSymbol]

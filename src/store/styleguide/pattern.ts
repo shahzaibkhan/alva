@@ -58,11 +58,6 @@ export class Pattern {
 	protected properties: Map<string, Property> = new Map();
 
 	/**
-	 * The slots this pattern supports
-	 */
-	protected slots: string[] = [];
-
-	/**
 	 * Creates a new pattern.
 	 * @param id The ID of the pattern. How this is generated is completely up to the styleguide analyzer
 	 * that creates the pattern (and does not necessarily represent the file path).
@@ -85,14 +80,6 @@ export class Pattern {
 	 */
 	public addProperty(property: Property): void {
 		this.properties.set(property.getId(), property);
-	}
-
-	/**
-	 * Adds a slot to this pattern. This method is called by the analyzer only.
-	 * @param name The slot to add.
-	 */
-	public addSlot(name: string): void {
-		this.slots.push(name);
 	}
 
 	/**
@@ -159,6 +146,23 @@ export class Pattern {
 	}
 
 	/**
+	 * Returns all the properties matching the provided type.
+	 * @param type The type to match.
+	 * @return The properties matching the provided type.
+	 */
+	public getPropertiesOfType(type: string): Property[] {
+		const properties: Property[] = [];
+
+		this.properties.forEach(property => {
+			if (property.getType() === type) {
+				properties.push(property);
+			}
+		});
+
+		return properties;
+	}
+
+	/**
 	 * Returns a property this pattern supports, by its ID.
 	 * @param id The ID of the property.
 	 * @param path If the property you are trying to find is buried inside an object property use the path paremeter to find it.
@@ -181,14 +185,6 @@ export class Pattern {
 		}
 
 		return property;
-	}
-
-	/**
-	 * Returns the slots this pattern supports.
-	 * @return The slots this pattern supports.
-	 */
-	public getSlots(): string[] {
-		return this.slots;
 	}
 
 	/**

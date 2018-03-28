@@ -8,6 +8,8 @@ import { EnumProperty, Option } from '../../store/styleguide/property/enum-prope
 import { NumberArrayProperty } from '../../store/styleguide/property/number-array-property';
 import { NumberProperty } from '../../store/styleguide/property/number-property';
 import { ObjectProperty } from '../../store/styleguide/property/object-property';
+import { PatternProperty } from '../../store/styleguide/property/pattern-property';
+import { ReactUtils } from '../typescript/react-utils';
 import { StringArrayProperty } from '../../store/styleguide/property/string-array-property';
 import { StringProperty } from '../../store/styleguide/property/string-property';
 import { TypescriptUtils } from '../typescript/typescript-utils';
@@ -76,6 +78,7 @@ export class PropertyAnalyzer {
 		}
 
 		const PROPERTY_FACTORIES: PropertyFactory[] = [
+			this.createPatternProperty,
 			this.createBooleanProperty,
 			this.createEnumProperty,
 			this.createStringProperty,
@@ -229,6 +232,14 @@ export class PropertyAnalyzer {
 		}
 
 		return;
+	}
+
+	private static createPatternProperty(args: PropertyFactoryArgs): PatternProperty | undefined {
+		if (ReactUtils.isSlotType(args.type)) {
+			return new PatternProperty(args.id);
+		}
+
+		return undefined;
 	}
 
 	/**

@@ -9,7 +9,6 @@ import { Property } from '../../store/styleguide/property/property';
 import { PropertyAnalyzer } from './property-analyzer';
 import { ReactUtils } from '../typescript/react-utils';
 import { renderReact } from '../../component/presentation/react/render';
-import { SlotAnalyzer } from './slot-analzyer';
 import { Styleguide } from '../../store/styleguide/styleguide';
 import { StyleguideAnalyzer } from '../styleguide-analyzer';
 import { Type } from '../typescript/type';
@@ -71,10 +70,7 @@ export class Analyzer extends StyleguideAnalyzer {
 
 			const exports: Export[] = TypescriptUtils.getExports(sourceFile, program);
 			exports.forEach(exportInfo => {
-				const reactType: Type | undefined = ReactUtils.findReactComponentType(
-					program,
-					exportInfo.type
-				);
+				const reactType: Type | undefined = ReactUtils.findReactComponentType(exportInfo.type);
 				const propType = reactType ? reactType.getTypeArguments()[0] : undefined;
 				if (!propType) {
 					return;
@@ -85,15 +81,16 @@ export class Analyzer extends StyleguideAnalyzer {
 				const pattern = new Pattern(id, name, patternInfo.implementationPath, exportInfo.name);
 				pattern.setIconPath(patternInfo.iconPath);
 
-				const slots: string[] = SlotAnalyzer.analyzeSlots(propType.type, program);
-				console.log(slots);
-
 				const properties: Property[] = PropertyAnalyzer.analyze(
 					propType.type,
 					propType.typeChecker
 				);
+
 				for (const property of properties) {
 					pattern.addProperty(property);
+					if (property.getType() === 'pattern') {
+						console.log(property);
+					}
 				}
 
 				folder.addPattern(pattern);
