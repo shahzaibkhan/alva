@@ -1,49 +1,40 @@
 import * as React from 'react';
 
 import Layout from '../../lsg/patterns/layout';
-<<<<<<< HEAD
-=======
-import { PageRef } from '../../store/page/page-ref';
-import { PreviewTile } from '../../lsg/patterns/preview-tile';
->>>>>>> chore(store): rebased from master
+import { observer } from 'mobx-react';
+import { PageViewModel } from '../view-model/page-view-model';
+
 import Space, { Size } from '../../lsg/patterns/space';
 
-import { PreviewTile } from '../../lsg/patterns/preview-tile';
 import { PageRef } from '../../store/page/page-ref';
 import { PreviewTile } from '../../lsg/patterns/preview-tile';
 
 export interface PageListProps {
-	activePage: string;
-	activeTitle: string;
-	editable: boolean;
-	focused: boolean;
-	handleChange: React.ChangeEventHandler<HTMLInputElement>;
-	pages: PageRef[];
-	value: string;
-	onEdit(): void;
-	onFocus(): boolean;
+	pages: PageViewModel[];
 }
 
-export const PageList: React.StatelessComponent<PageListProps> = (props): JSX.Element => (
-	<Layout>
-		{props.pages.map((page: PageRef, i: number) => {
-			let focused = false;
-			if (page.getId() === props.activePage) {
-				focused = props.onFocus();
-			}
-			console.log(props, 'this are the props');
-			return (
-				<Space key={i} size={Size.S}>
-					<PreviewTile
-						id={page.getId()}
-						editable={false}
-						focused={focused}
-						handleChange={props.handleChange}
-						name={page.getName()}
-						value={props.value}
-					/>
-				</Space>
-			);
-		})}
-	</Layout>
-);
+@observer
+export class PageList extends React.Component<PageListProps> {
+	public render(): JSX.Element {
+		return (
+			<Layout>
+				{this.props.pages.map((page: PageViewModel, i: number) => {
+					console.log(page.focused, 'the page');
+					return (
+						<Space key={i} size={Size.S}>
+							<PreviewTile
+								id={page.page.getId()}
+								editable={page.editable}
+								focused={page.focused}
+								handleChange={() => ''}
+								name={page.name}
+								onClick={() => page.onClick() || false}
+								value={'foo'}
+							/>
+						</Space>
+					);
+				})}
+			</Layout>
+		);
+	}
+}
