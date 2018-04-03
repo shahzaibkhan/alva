@@ -1,11 +1,14 @@
 import { AssetProperty } from '../../../store/styleguide/property/asset-property';
+import * as Chokidar from 'chokidar';
 import { ErrorMessage } from './error-message';
 import { HighlightArea } from '../highlight-area';
-import { observable } from 'mobx';
+import * as MobX from 'mobx';
 import { observer } from 'mobx-react';
 import { Page } from '../../../store/page/page';
 import { PageElement } from '../../../store/page/page-element';
+import * as PathUtils from 'path';
 import { Pattern } from '../../../store/styleguide/pattern';
+import { PatternComponent } from './pattern-component';
 import { Placeholder } from './placeholder';
 import { PropertyValue } from '../../../store/page/property-value';
 import * as React from 'react';
@@ -19,6 +22,7 @@ export interface PreviewAppState {
 
 interface PreviewProps {
 	page?: Page;
+	patternFactories: { [id: string]: React.StatelessComponent | ObjectConstructor };
 	selectedElementId?: string;
 }
 
@@ -56,26 +60,23 @@ class PatternWrapper extends React.Component<PatternWrapperProps, PatternWrapper
 
 @observer
 class Preview extends React.Component<PreviewProps> {
-	@observable private highlightArea: HighlightArea;
-	private patternFactories: { [id: string]: React.StatelessComponent | ObjectConstructor };
-	private patternWrapperRef: PatternWrapper;
+	@MobX.observable protected highlightArea: HighlightArea;
+	protected patternWrapperRef: PatternWrapper;
 
 	public constructor(props: PreviewProps) {
 		super(props);
-		this.patternFactories = {};
-
 		this.highlightArea = new HighlightArea();
 	}
 
 	// tslint:disable-next-line:no-any
-	private collectChildren(componentProps: any, pageElement: PageElement): void {
+	protected collectChildren(componentProps: any, pageElement: PageElement): void {
 		componentProps.children = pageElement
 			.getChildren()
 			.map((child, index) => this.createComponent(child));
 	}
 
 	// tslint:disable-next-line:no-any
-	private collectPropertyValues(componentProps: any, pageElement: PageElement): void {
+	protected collectPropertyValues(componentProps: any, pageElement: PageElement): void {
 		const pattern = pageElement.getPattern() as Pattern;
 		pattern.getProperties().forEach(property => {
 			const propertyId = property.getId();
@@ -93,7 +94,7 @@ class Preview extends React.Component<PreviewProps> {
 		this.triggerHighlight();
 	}
 
-	private createAssetComponent(pageElement: PageElement): JSX.Element {
+	protected createAssetComponent(pageElement: PageElement): JSX.Element {
 		const src = pageElement.getPropertyValue(AssetProperty.SYNTHETIC_ASSET_ID) as string;
 		return this.createWrapper(pageElement, <Placeholder src={src} />);
 	}
@@ -107,7 +108,7 @@ class Preview extends React.Component<PreviewProps> {
 	 * @returns A React component in case of a page element, the primitive in case of a primitive,
 	 * or an array or object with values converted in the same manner, if an array resp. object is provided.
 	 */
-	private createComponent(value: PropertyValue): JSX.Element | PropertyValue {
+	protected createComponent(value: PropertyValue): JSX.Element | PropertyValue {
 		if (value === undefined || value === null || typeof value !== 'object') {
 			// Primitives stay primitives.
 			return value;
@@ -129,21 +130,9 @@ class Preview extends React.Component<PreviewProps> {
 					return this.createStringComponent(pageElement);
 				} else if (patternId === Pattern.SYNTHETIC_ASSET_ID) {
 					return this.createAssetComponent(pageElement);
+				} else {
+					return this.createPatternComponent(pageElement, patternId);
 				}
-
-				// tslint:disable-next-line:no-any
-				const componentProps: any = {};
-				this.collectPropertyValues(componentProps, pageElement);
-				this.collectChildren(componentProps, pageElement);
-
-				// Then, load the pattern factory
-				const patternFactory:
-					| React.StatelessComponent
-					| ObjectConstructor = this.loadAndCachePatternFactory(pattern);
-
-				// Finally, build the component and wrap it for selectability
-				const reactElement = React.createElement(patternFactory, componentProps);
-				return this.createWrapper(pageElement, reactElement);
 			} catch (error) {
 				return <ErrorMessage patternName={pageElement.getName()} error={error.toString()} />;
 			}
@@ -161,11 +150,31 @@ class Preview extends React.Component<PreviewProps> {
 		}
 	}
 
-	private createStringComponent(pageElement: PageElement): string {
+	protected createPatternComponent(pageElement: PageElement, patternId: string): JSX.Element {
+		// tslint:disable-next-line:no-any
+		const patternProps: any = {};
+		this.collectPropertyValues(patternProps, pageElement);
+		this.collectChildren(patternProps, pageElement);
+
+		// Then, load the pattern factory
+		const patternFactory: React.StatelessComponent | ObjectConstructor = this.props
+			.patternFactories[patternId];
+		if (!patternFactory) {
+			throw new Error(`Unknown pattern ID ${patternId}`);
+		}
+
+		// Finally, build the component and wrap it for selectability
+		const reactElement = (
+			<PatternComponent patternFactory={patternFactory} patternProps={patternProps} />
+		);
+		return this.createWrapper(pageElement, reactElement);
+	}
+
+	protected createStringComponent(pageElement: PageElement): string {
 		return String(pageElement.getPropertyValue(StringProperty.SYNTHETIC_TEXT_ID));
 	}
 
-	private createWrapper(pageElement: PageElement, reactElement: JSX.Element): JSX.Element {
+	protected createWrapper(pageElement: PageElement, reactElement: JSX.Element): JSX.Element {
 		return (
 			<PatternWrapper
 				key={pageElement.getId()}
@@ -179,23 +188,6 @@ class Preview extends React.Component<PreviewProps> {
 				{reactElement}
 			</PatternWrapper>
 		);
-	}
-
-	private loadAndCachePatternFactory(
-		pattern: Pattern
-	): React.StatelessComponent | ObjectConstructor {
-		let patternFactory: React.StatelessComponent | ObjectConstructor = this.patternFactories[
-			pattern.getId()
-		];
-		if (patternFactory == null) {
-			const patternPath: string = pattern.getImplementationPath();
-			const exportName = pattern.getExportName();
-			const module = require(patternPath);
-			patternFactory = module[exportName];
-			this.patternFactories[pattern.getId()] = patternFactory;
-		}
-
-		return patternFactory;
 	}
 
 	public render(): JSX.Element | null {
@@ -241,8 +233,59 @@ class Preview extends React.Component<PreviewProps> {
 
 @observer
 export class PreviewApp extends React.Component<{}, PreviewAppState> {
+	@MobX.observable
+	private patternFactories: { [id: string]: React.StatelessComponent | ObjectConstructor } = {};
+	private patternWatcher?: Chokidar.FSWatcher;
+
 	public constructor(props: {}) {
 		super(props);
+		this.loadAndWatchPatternFactories();
+	}
+
+	@MobX.action
+	private loadAndWatchPatternFactories(): void {
+		console.log('Reloading patterns...');
+		if (this.patternWatcher) {
+			console.log('Closing watcher...');
+			this.patternWatcher.close();
+			this.patternWatcher = undefined;
+		}
+
+		const styleguide = Store.getInstance().getStyleguide();
+		if (styleguide) {
+			styleguide.getPatterns().forEach(pattern => {
+				if (pattern.getId().startsWith('synthetic:')) {
+					return;
+				}
+
+				try {
+					const patternPath: string = pattern.getImplementationPath();
+					const exportName = pattern.getExportName();
+
+					// Ensure that require does not cache the implementation,
+					// so that we still have control on when we reload it
+					delete require.cache[require.resolve(patternPath)];
+
+					const module = require(patternPath);
+					this.patternFactories[pattern.getId()] = module[exportName];
+				} catch (error) {
+					console.warn(`Failed to load pattern ${pattern.getId()}: ${error}`);
+				}
+			});
+
+			const patternsPath = styleguide
+				.getPatternsPath()
+				.split(PathUtils.sep)
+				.join('/');
+			const watchPaths = [`${patternsPath}/**/index.js`, `${patternsPath}/**/index.d.ts`];
+			this.patternWatcher = Chokidar.watch(watchPaths);
+			this.patternWatcher.on('all', () => {
+				this.loadAndWatchPatternFactories();
+			});
+			console.log('Patterns loaded...');
+		} else {
+			console.log('No styleguide.');
+		}
 	}
 
 	public render(): JSX.Element {
@@ -259,6 +302,7 @@ export class PreviewApp extends React.Component<{}, PreviewAppState> {
 			<div>
 				<Preview
 					page={Store.getInstance().getCurrentPage()}
+					patternFactories={this.patternFactories}
 					selectedElementId={selectedElement && selectedElement.getId()}
 				/>
 				{DevTools ? <DevTools /> : ''}

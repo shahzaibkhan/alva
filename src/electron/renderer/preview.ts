@@ -12,11 +12,15 @@ const store = Store.getInstance();
 
 ipcRenderer.on('styleguide-change', (event: {}, message: JsonObject) => {
 	store.setStyleguideFromJsonInternal(message);
+	const styleguide = store.getStyleguide();
+	const analyzer = styleguide ? styleguide.getAnalyzer() : undefined;
+	if (analyzer) {
+		analyzer.render();
+	}
 });
 
 ipcRenderer.on('page-change', (event: {}, message: JsonObject) => {
 	store.setPageFromJsonInternal(message);
-
 	const styleguide = store.getStyleguide();
 	const analyzer = styleguide ? styleguide.getAnalyzer() : undefined;
 	if (analyzer) {
