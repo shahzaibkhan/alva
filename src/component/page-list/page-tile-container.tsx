@@ -1,21 +1,23 @@
 import * as MobX from 'mobx';
+import { observer } from 'mobx-react';
 import { PageRef } from '../../store/page/page-ref';
 import { PageTileComposite } from './page-tile-composite';
 import * as React from 'react';
+import { Store } from '../../store/store';
 
 export interface PageTileContainerProps {
 	page: PageRef;
 }
 
+@observer
 export class PageTileContainer extends React.Component<PageTileContainerProps> {
 	@MobX.observable public editable: boolean = false;
-	@MobX.observable public focused: boolean;
+	@MobX.observable public focused: boolean = false;
 	@MobX.observable public inputValue: string = '';
 
 	public constructor(props: PageTileContainerProps) {
 		super(props);
 		this.inputValue = this.inputValue ? this.inputValue : props.page.getName();
-		console.log(this.inputValue, 'the page is there');
 
 		this.handleChange = this.handleChange.bind(this);
 		this.handleClick = this.handleClick.bind(this);
@@ -38,12 +40,17 @@ export class PageTileContainer extends React.Component<PageTileContainerProps> {
 	protected handleClick(e: React.MouseEvent<HTMLElement>): void {
 		console.log(e, 'please');
 		this.focused = !this.focused;
+		this.editable = false;
 	}
 
 	@MobX.action
 	protected handleDoubleClick(e: React.MouseEvent<HTMLElement>): void {
 		e.preventDefault();
-		this.editable = !this.editable;
+
+		if (!this.focused) {
+			this.focused = true;
+		}
+		Store.getInstance().openPage(this.props.page.getId());
 	}
 
 	@MobX.action

@@ -6,7 +6,7 @@ import Space, { Size } from '../../lsg/patterns/space';
 
 export const PageTileComposite: React.StatelessComponent<PreviewTileProps> = observer(
 	(props): JSX.Element => {
-		console.log(props.name, '__________');
+		console.log(props, '__________');
 		return (
 			<Space size={Size.S}>
 				<PreviewTile

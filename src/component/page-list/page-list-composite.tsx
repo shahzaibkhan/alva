@@ -14,7 +14,7 @@ export const PageListComposite: React.StatelessComponent<PageListProps> = observ
 	(props): JSX.Element => (
 		<Layout>
 			{props.pages.map((page: PageRef, i: number) => {
-				console.log(page, 'PageListComposite pages are there');
+				console.log('PageListComposite pages are there');
 				return <PageTileContainer key={i} page={page} />;
 			})}
 		</Layout>
