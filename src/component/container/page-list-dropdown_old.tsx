@@ -3,18 +3,15 @@ import { ElementCommand } from '../../store/command/element-command';
 import { PatternFolder } from '../../store/styleguide/folder';
 import { action } from 'mobx';
 import { observer } from 'mobx-react';
-<<<<<<< HEAD
-import { PageRef } from '../../store/page/page-ref';
-import { Project } from '../../store/project';
-=======
 import { PageElement } from '../../store/page/page-element';
+// import { PageRef } from '../../store/page/page-ref';
 import { Pattern } from '../../store/styleguide/pattern';
 import PatternList, {
 	PatternLabel,
 	PatternListItem,
 	PatternListItemProps
 } from '../../lsg/patterns/pattern-list';
->>>>>>> chore(store): rebased from master
+// import { Project } from '../../store/project';
 import * as React from 'react';
 import Space, { Size } from '../../lsg/patterns/space';
 import { Store } from '../../store/store';

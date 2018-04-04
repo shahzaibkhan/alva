@@ -14,33 +14,27 @@ import Link from '../../lsg/patterns/link';
 import { createMenu } from '../../electron/menu';
 import * as MobX from 'mobx';
 import { observer } from 'mobx-react';
-import { Page } from '../store/page/page';
+// const { app, dialog } = remote;
+import { PageListContainer } from './page-list-container';
+import { PageListPreview } from '../composite/page-list-preview';
+// import { Page } from '../store/page/page';
 import * as PathUtils from 'path';
 import { PatternListContainer } from '../../component/container/pattern-list';
 import PatternsPane from '../../lsg/patterns/panes/patterns-pane';
 import { PreviewPaneWrapper } from '../../component/container/preview-pane-wrapper';
 import * as ProcessUtils from 'process';
-<<<<<<< HEAD:src/component/container/app.tsx
-import { ProjectList } from '../../component/container/project-list';
-import { PropertyList } from '../../component/container/property-list';
+import { ProjectList } from './project-list';
+import { PropertyList } from './property-list';
 import PropertyPane from '../../lsg/patterns/panes/property-pane';
-=======
-import { ProjectList } from './container/project-list';
-import { PropertyList } from './container/property-list';
-import PropertyPane from '../lsg/patterns/panes/property-pane';
-const { app, dialog } = remote;
-import { PageListContainer } from './container/page-list-container';
-import { PageListPreview } from './composite/page-list-preview';
->>>>>>> chore(store): rebased from master:src/component/app.tsx
 import * as React from 'react';
-import * as ReactDom from 'react-dom';
-import Space, { Size as SpaceSize } from '../lsg/patterns/space';
-import SplashScreen from '../lsg/patterns/splash-screen';
-import { Store } from '../store/store';
+// import * as ReactDom from 'react-dom';
+import Space, { Size as SpaceSize } from '../../lsg/patterns/space';
+import SplashScreen from '../../lsg/patterns/splash-screen';
+import { Store } from '../../store/store';
 
 // prevent app zooming
-webFrame.setVisualZoomLevelLimits(1, 1);
-webFrame.setLayoutZoomLevelLimits(0, 0);
+// webFrame.setVisualZoomLevelLimits(1, 1);
+// webFrame.setLayoutZoomLevelLimits(0, 0);
 
 globalStyles();
 
@@ -92,6 +86,7 @@ export class App extends React.Component {
 	@MobX.action
 	protected handleChromeToggle(evt: React.MouseEvent<HTMLElement>): void {
 		this.projectListVisible = !this.projectListVisible;
+	}
 
 	protected handleCreateNewSpaceClick(): void {
 		let appPath: string = remote.app.getAppPath().replace('.asar', '.asar.unpacked');

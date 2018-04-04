@@ -6,7 +6,7 @@ import { PageViewModel } from '../view-model/page-view-model';
 
 import Space, { Size } from '../../lsg/patterns/space';
 
-import { PageRef } from '../../store/page/page-ref';
+// import { PageRef } from '../../store/page/page-ref';
 import { PreviewTile } from '../../lsg/patterns/preview-tile';
 
 export interface PageListProps {
