@@ -16,7 +16,7 @@ export interface PageListProps {
 export const PageList: React.StatelessComponent<PageListProps> = observer((props): JSX.Element => (
 	<Layout>
 		{props.pages.map((page: PageViewModel, i: number) => {
-			console.log(page.handleDoubleClick, 'the page');
+			console.log(page.editable, 'page list presentational');
 			return (
 				<Space key={i} size={Size.S}>
 					<PreviewTile
@@ -24,10 +24,11 @@ export const PageList: React.StatelessComponent<PageListProps> = observer((props
 						editable={page.editable}
 						focused={page.focused}
 						onChange={e => page.handleChange(e)}
-						name={page.name}
+						name={page.inputValue}
 						onClick={e => page.handleClick(e)}
 						onDoubleClick={e => page.handleDoubleClick(e)}
-						value={page.name}
+						onKeyDown={e => page.handleKeyDown(e)}
+						value={page.inputValue}
 					/>
 				</Space>
 			);

@@ -12,6 +12,7 @@ export interface PreviewTileProps {
 	onChange?: React.ChangeEventHandler<HTMLInputElement>;
 	onClick?: React.MouseEventHandler<HTMLElement>;
 	onDoubleClick?: React.MouseEventHandler<HTMLElement>;
+	onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
 	value: string;
 }
 
@@ -48,7 +49,8 @@ const StyledTitle = styled.strong`
 
 const StyledEditableTitle = styled(Input)`
 	display: inline-block;
-	margin-bottom: ${getSpace(Size.S)}px;
+	padding: 0;
+	margin: 0 0 ${getSpace(Size.S)}px 0;
 	font-size: 12px;
 	font-weight: normal;
 	text-align: center;
@@ -69,6 +71,7 @@ export const PreviewTile: React.StatelessComponent<PreviewTileProps> = (props): 
 				data-title-id={props.id}
 				focused={props.focused}
 				handleChange={props.onChange}
+				handleKeyDown={props.onKeyDown}
 				type={InputTypes.string}
 				value={props.value}
 			>
