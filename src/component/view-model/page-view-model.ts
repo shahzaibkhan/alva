@@ -2,7 +2,7 @@ import * as MobX from 'mobx';
 import { PageRef } from '../../store/page/page-ref';
 export class PageViewModel {
 	@MobX.observable public editable: boolean = false;
-	@MobX.observable public focused: boolean = false;
+	@MobX.observable public focused: boolean;
 	@MobX.observable public inputValue: string = '';
 	public readonly page: PageRef;
 	public constructor(page: PageRef) {
@@ -16,12 +16,15 @@ export class PageViewModel {
 		this.onFocus = this.onFocus.bind(this);
 	}
 
+	@MobX.action
 	public handleChange(e: React.ChangeEvent<HTMLInputElement>): void {
 		this.inputValue = e.target.value;
 	}
+
+	@MobX.action
 	public handleClick(e: React.MouseEvent<HTMLElement>): void {
-		e.preventDefault();
-		this.onFocus();
+		console.log(e, 'please');
+		this.focused = !this.focused;
 	}
 
 	@MobX.action

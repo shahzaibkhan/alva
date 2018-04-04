@@ -7,6 +7,7 @@ import styled from 'styled-components';
 export interface PreviewTileProps {
 	editable: boolean;
 	focused: boolean;
+	handleBlur?: React.FocusEventHandler<HTMLElement>;
 	id?: string;
 	name: string;
 	onChange?: React.ChangeEventHandler<HTMLInputElement>;
@@ -18,7 +19,6 @@ export interface PreviewTileProps {
 
 interface StyledPreviewTileProps {
 	focused: boolean;
-	onChange?: React.ChangeEventHandler<HTMLInputElement>;
 }
 
 const StyledPreview = styled.section`
@@ -41,6 +41,7 @@ const StyledPreviewTile = styled.div`
 
 const StyledTitle = styled.strong`
 	display: inline-block;
+	width: 100%;
 	margin-bottom: ${getSpace(Size.S)}px;
 	font-size: 12px;
 	font-weight: normal;
@@ -65,10 +66,9 @@ const StyledEditableTitle = styled(Input)`
 `;
 
 export const PreviewTile: React.StatelessComponent<PreviewTileProps> = (props): JSX.Element => (
-	<StyledPreview>
+	<StyledPreview data-id={props.id} onBlur={props.handleBlur} onClick={props.onClick}>
 		{props.editable ? (
 			<StyledEditableTitle
-				data-title-id={props.id}
 				focused={props.focused}
 				handleChange={props.onChange}
 				handleKeyDown={props.onKeyDown}
@@ -80,6 +80,6 @@ export const PreviewTile: React.StatelessComponent<PreviewTileProps> = (props): 
 		) : (
 			<StyledTitle onDoubleClick={props.onDoubleClick}>{props.name}</StyledTitle>
 		)}
-		<StyledPreviewTile onClick={props.onClick} focused={props.focused} />
+		<StyledPreviewTile focused={props.focused} />
 	</StyledPreview>
 );
