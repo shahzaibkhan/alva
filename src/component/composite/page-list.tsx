@@ -23,7 +23,7 @@ export const PageList: React.StatelessComponent<PageListProps> = observer((props
 						id={page.page.getId()}
 						editable={page.editable}
 						focused={page.focused}
-						handleBlur={page.handleBlur}
+						onBlur={page.handleBlur}
 						onChange={e => page.handleChange(e)}
 						name={page.inputValue}
 						onClick={e => page.handleClick(e)}
