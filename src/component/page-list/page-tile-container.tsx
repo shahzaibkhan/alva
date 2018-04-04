@@ -36,6 +36,7 @@ export class PageTileContainer extends React.Component<PageTileContainerProps> {
 	@MobX.action
 	protected handleChange(e: React.ChangeEvent<HTMLInputElement>): void {
 		this.inputValue = e.target.value;
+		console.log(this.inputValue);
 	}
 
 	@MobX.action

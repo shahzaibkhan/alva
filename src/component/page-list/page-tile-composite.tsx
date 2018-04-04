@@ -15,11 +15,11 @@ export const PageTileComposite: React.StatelessComponent<PreviewTileProps> = obs
 					focused={props.focused}
 					onBlur={props.onBlur}
 					onChange={props.onChange}
-					name={props.inputValue}
+					name={props.value}
 					onClick={props.onClick}
 					onDoubleClick={props.onDoubleClick}
 					onKeyDown={props.onKeyDown}
-					value={props.inputValue}
+					value={props.value}
 				/>
 			</Space>
 		);
