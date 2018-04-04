@@ -7,7 +7,7 @@ import styled from 'styled-components';
 export interface PreviewTileProps {
 	editable: boolean;
 	focused: boolean;
-	handleBlur?: React.FocusEventHandler<HTMLElement>;
+	handleBlur?: React.FocusEventHandler<HTMLInputElement>;
 	id?: string;
 	name: string;
 	onChange?: React.ChangeEventHandler<HTMLInputElement>;
@@ -70,6 +70,7 @@ export const PreviewTile: React.StatelessComponent<PreviewTileProps> = (props): 
 		{props.editable ? (
 			<StyledEditableTitle
 				focused={props.focused}
+				handleBlur={props.handleBlur}
 				handleChange={props.onChange}
 				handleKeyDown={props.onKeyDown}
 				type={InputTypes.string}

@@ -1,172 +1,144 @@
-import Input from '../../lsg/patterns/input/';
-import { ElementCommand } from '../../store/command/element-command';
-import { PatternFolder } from '../../store/styleguide/folder';
-import { action } from 'mobx';
+import Dropdown from '../../lsg/patterns/dropdown';
+import { DropdownItemEditableLink } from '../../lsg/patterns/dropdown-item';
+import * as MobX from 'mobx';
 import { observer } from 'mobx-react';
-import { PageElement } from '../../store/page/page-element';
-// import { PageRef } from '../../store/page/page-ref';
-import { Pattern } from '../../store/styleguide/pattern';
-import PatternList, {
-	PatternLabel,
-	PatternListItem,
-	PatternListItemProps
-} from '../../lsg/patterns/pattern-list';
-// import { Project } from '../../store/project';
+import { PageRef } from '../../store/page/page-ref';
+import { Project } from '../../store/project';
 import * as React from 'react';
-import Space, { Size } from '../../lsg/patterns/space';
 import { Store } from '../../store/store';
 
-export interface PatternListContainerItemProps {
-	items: NamedPatternListItemProps[];
+export interface PageListItemProps {
 	name: string;
-}
-
-export interface NamedPatternListItemProps extends PatternListItemProps {
-	name: string;
+	pageID: string;
+	pageRef: PageRef;
 }
 
 @observer
-export class PatternListContainer extends React.Component {
-	public items: PatternListContainerItemProps[] = [];
+export class PageListItem extends React.Component<PageListItemProps> {
+	@MobX.observable protected pageElementEditable: boolean = false;
+	@MobX.observable protected pageNameInputValue: string;
 
-	public constructor(props: {}) {
+	public constructor(props: PageListItemProps) {
 		super(props);
 
-		this.handleSearchInputChange = this.handleSearchInputChange.bind(this);
-		this.handlePatternClick = this.handlePatternClick.bind(this);
-		this.handleDragStart = this.handleDragStart.bind(this);
+		this.pageNameInputValue = this.props.name;
+		this.handleInputChange = this.handleInputChange.bind(this);
+		this.handleBlur = this.handleBlur.bind(this);
+		this.handlePageKeyDown = this.handlePageKeyDown.bind(this);
+		this.handlePageClick = this.handlePageClick.bind(this);
+		this.handlePageDoubleClick = this.handlePageDoubleClick.bind(this);
+		this.renamePage = this.renamePage.bind(this);
 	}
 
-	public createItemsFromFolder(parent: PatternFolder): PatternListContainerItemProps[] {
-		const result: PatternListContainerItemProps[] = [];
-
-		for (const folder of parent.getDescendants()) {
-			const containerItem: PatternListContainerItemProps = {
-				name: folder.getName(),
-				items: []
-			};
-
-			for (const pattern of folder.getPatterns()) {
-				containerItem.items.push({
-					name: pattern.getName(),
-					draggable: true,
-					icon: pattern.getIconPath(),
-					handleDragStart: (e: React.DragEvent<HTMLElement>) => {
-						this.handleDragStart(e, pattern);
-					},
-					onClick: () => {
-						this.handlePatternClick(pattern);
-					}
-				});
-			}
-
-			result.push(containerItem);
-		}
-
-		return result;
+	@MobX.action
+	protected handleBlur(): void {
+		this.pageElementEditable = false;
+		this.pageNameInputValue = this.props.name;
 	}
 
-	public createList(containers: PatternListContainerItemProps[]): JSX.Element {
-		return (
-			<PatternList>
-				{containers.map((container: PatternListContainerItemProps, index: number) => {
-					if (container.items.length) {
-						return (
-							<PatternList key={index}>
-								<PatternLabel>{container.name}</PatternLabel>
-								{container.items.map((item, itemIndex) => (
-									<PatternListItem
-										draggable={item.draggable}
-										handleDragStart={item.handleDragStart}
-										key={itemIndex}
-										icon={item.icon}
-										onClick={item.onClick}
-									>
-										{item.name}
-									</PatternListItem>
-								))}
-							</PatternList>
-						);
-					}
+	protected handleInputChange(e: React.ChangeEvent<HTMLInputElement>): void {
+		this.pageNameInputValue = e.target.value;
+	}
 
+	protected handlePageClick(e: React.MouseEvent<HTMLElement>): void {
+		e.preventDefault();
+		Store.getInstance().openPage(this.props.pageID);
+	}
+
+	protected handlePageDoubleClick(): void {
+		this.pageElementEditable = !this.pageElementEditable;
+	}
+
+	@MobX.action
+	protected handlePageKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+		switch (e.key.toString()) {
+			case 'Escape':
+				this.pageNameInputValue = this.props.name;
+				this.pageElementEditable = false;
+				break;
+
+			case 'Enter':
+				if (!this.pageNameInputValue) {
+					this.pageNameInputValue = this.props.name;
+					this.pageElementEditable = false;
 					return;
-				})}
-			</PatternList>
-		);
-	}
+				}
 
-	@action
-	protected handleDragStart(e: React.DragEvent<HTMLElement>, pattern: Pattern): void {
-		e.dataTransfer.dropEffect = 'copy';
-		e.dataTransfer.setDragImage(
-			e.currentTarget.querySelector('.pattern__icon') as Element,
-			12,
-			12
-		);
+				this.renamePage(this.pageNameInputValue);
+				this.pageElementEditable = false;
+				break;
 
-		e.dataTransfer.setData('patternId', pattern.getId());
-	}
-
-	@action
-	protected handlePatternClick(pattern: Pattern): void {
-		const store: Store = Store.getInstance();
-		const selectedElement: PageElement | undefined = store.getSelectedElement();
-		if (selectedElement) {
-			const newPageElement = new PageElement({
-				pattern,
-				setDefaults: true
-			});
-			store.execute(ElementCommand.addSibling(selectedElement, newPageElement));
-			store.setSelectedElement(newPageElement);
+			default:
+				return;
 		}
 	}
 
-	@action
-	protected handleSearchInputChange(evt: React.ChangeEvent<HTMLInputElement>): void {
-		Store.getInstance().setPatternSearchTerm(evt.target.value);
+	protected renamePage(name: string): void {
+		const pageRef = this.props.pageRef;
+		pageRef.setName(name);
+		pageRef.updatePathFromNames();
 	}
 
 	public render(): JSX.Element {
-		const store: Store = Store.getInstance();
-		const styleguide = store.getStyleguide();
-		const patternRoot = styleguide && styleguide.getPatternRoot();
-		this.items = patternRoot ? this.createItemsFromFolder(patternRoot) : [];
-
-		if (store.getPatternSearchTerm() !== '') {
-			this.items = this.search(this.items, store.getPatternSearchTerm());
-		}
-
-		const list = this.createList(this.items);
 		return (
-			<div>
-				<Space sizeBottom={Size.XXS}>
-					<Input handleChange={this.handleSearchInputChange} placeholder="Search patterns" />
-				</Space>
-				<Space size={[0, Size.L]}>{list}</Space>
-			</div>
+			<DropdownItemEditableLink
+				editable={this.pageElementEditable}
+				focused={this.pageElementEditable}
+				handleChange={this.handleInputChange}
+				handleClick={this.handlePageClick}
+				handleDoubleClick={this.handlePageDoubleClick}
+				handleKeyDown={this.handlePageKeyDown}
+				name={this.props.name}
+				handleBlur={this.handleBlur}
+				value={this.pageNameInputValue}
+			/>
 		);
 	}
+}
 
-	public search(
-		containers: PatternListContainerItemProps[],
-		term: string
-	): PatternListContainerItemProps[] {
-		const result: PatternListContainerItemProps[] = [];
+@observer
+export class PageListOld extends React.Component {
+	@MobX.observable protected pageListVisible: boolean = false;
+	public constructor(props: {}) {
+		super(props);
 
-		for (const container of containers) {
-			if (!container.items.length) {
-				continue;
-			}
+		this.handleDropdownToggle = this.handleDropdownToggle.bind(this);
+	}
 
-			const matchingItems = container.items.filter(
-				item => item.name.toLowerCase().indexOf(term.toLowerCase()) !== -1
-			);
-			result.push({
-				name: container.name,
-				items: matchingItems
-			});
+	public getProjectPages(): PageRef[] {
+		const project: Project | undefined = Store.getInstance().getCurrentProject();
+		let projectPages: PageRef[] = [];
+		if (project) {
+			projectPages = project.getPages();
 		}
+		return projectPages;
+	}
 
-		return result;
+	protected handleDropdownToggle(): void {
+		this.pageListVisible = !this.pageListVisible;
+	}
+
+	public render(): JSX.Element {
+		const currentPage = Store.getInstance().getCurrentPage();
+		let currentPageName = '';
+		if (currentPage) {
+			currentPageName = currentPage.getName();
+		}
+		return (
+			<Dropdown
+				label={currentPageName}
+				handleClick={this.handleDropdownToggle}
+				open={this.pageListVisible}
+			>
+				{this.getProjectPages().map((page: PageRef, index) => (
+					<PageListItem
+						key={page.getId()}
+						name={page.getName()}
+						pageID={page.getId()}
+						pageRef={page}
+					/>
+				))}
+			</Dropdown>
+		);
 	}
 }

@@ -8,7 +8,7 @@ import { Project } from '../../store/project';
 import { Store } from '../../store/store';
 
 export class PageListContainer extends React.Component<{}> {
-	protected generatePageViewModel(): PageViewModel[] {
+	protected generatePageViewModels(): PageViewModel[] {
 		const project: Project | undefined = Store.getInstance().getCurrentProject();
 		const projectPages: PageRef[] = project ? project.getPages() : [];
 
@@ -16,6 +16,6 @@ export class PageListContainer extends React.Component<{}> {
 	}
 
 	public render(): JSX.Element {
-		return <PageList pages={this.generatePageViewModel()} />;
+		return <PageList pages={this.generatePageViewModels()} />;
 	}
 }

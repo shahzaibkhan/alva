@@ -17,6 +17,11 @@ export class PageViewModel {
 	}
 
 	@MobX.action
+	public handleBlur(): void {
+		this.editable = false;
+	}
+
+	@MobX.action
 	public handleChange(e: React.ChangeEvent<HTMLInputElement>): void {
 		this.inputValue = e.target.value;
 	}

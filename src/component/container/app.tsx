@@ -14,8 +14,9 @@ import Link from '../../lsg/patterns/link';
 import { createMenu } from '../../electron/menu';
 import * as MobX from 'mobx';
 import { observer } from 'mobx-react';
-// const { app, dialog } = remote;
 import { PageListContainer } from './page-list-container';
+import { PageListOld } from './page-list-dropdown_old';
+// const { app, dialog } = remote;
 import { PageListPreview } from '../composite/page-list-preview';
 // import { Page } from '../store/page/page';
 import * as PathUtils from 'path';
@@ -193,6 +194,7 @@ export class App extends React.Component {
 							<PageListContainer />
 						</PageListPreview>,
 						<SideBar key="left" directionVertical hasPaddings>
+							<PageListOld />
 							<ElementPane>
 								<ElementList />
 							</ElementPane>
