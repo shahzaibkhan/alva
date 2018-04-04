@@ -24,10 +24,37 @@ export class PageViewModel {
 		this.onFocus();
 	}
 
+	@MobX.action
 	public handleDoubleClick(e: React.MouseEvent<HTMLElement>): void {
 		e.preventDefault();
 		this.editable = !this.editable;
 	}
+
+	@MobX.action
+	public handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+		switch (e.key.toString()) {
+			case 'Escape':
+				// this.pageNameInputValue = name;
+				this.editable = false;
+				break;
+
+			case 'Enter':
+				// if (!this.pageNameInputValue) {
+				// 	// this.pageNameInputValue = name;
+				// 	this.editable = false;
+				// 	return;
+				// }
+
+				// this.renamePage(this.pageNameInputValue);
+				this.editable = false;
+				break;
+
+			default:
+				return;
+		}
+	}
+
+	@MobX.action
 	public onFocus(): void {
 		this.focused = !this.focused;
 	}
