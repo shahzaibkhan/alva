@@ -87,6 +87,7 @@ export class PageTileContainer extends React.Component<PageTileContainerProps> {
 				id={this.props.page.getId()}
 				name={this.inputValue}
 				onBlur={this.handleBlur}
+				onChange={this.handleChange}
 				onClick={this.handleClick}
 				onDoubleClick={this.handleDoubleClick}
 				onKeyDown={this.handleKeyDown}

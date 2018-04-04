@@ -65,25 +65,22 @@ const StyledEditableTitle = styled(Input)`
 	}
 `;
 
-export const PreviewTile: React.StatelessComponent<PreviewTileProps> = (props): JSX.Element => {
-	console.log('~~~~preview tile level', props);
-	return (
-		<StyledPreview onClick={props.onClick} onDoubleClick={props.onDoubleClick}>
-			{props.editable ? (
-				<StyledEditableTitle
-					focused={props.focused}
-					handleBlur={props.onBlur}
-					handleChange={props.onChange}
-					handleKeyDown={props.onKeyDown}
-					type={InputTypes.string}
-					value={props.value}
-				>
-					{props.value}
-				</StyledEditableTitle>
-			) : (
-				<StyledTitle>{props.name}</StyledTitle>
-			)}
-			<StyledPreviewTile focused={props.focused} />
-		</StyledPreview>
-	);
-};
+export const PreviewTile: React.StatelessComponent<PreviewTileProps> = (props): JSX.Element => (
+	<StyledPreview onClick={props.onClick} onDoubleClick={props.onDoubleClick}>
+		{props.editable ? (
+			<StyledEditableTitle
+				focused={props.focused}
+				handleBlur={props.onBlur}
+				handleChange={props.onChange}
+				handleKeyDown={props.onKeyDown}
+				type={InputTypes.string}
+				value={props.value}
+			>
+				{props.value}
+			</StyledEditableTitle>
+		) : (
+			<StyledTitle>{props.name}</StyledTitle>
+		)}
+		<StyledPreviewTile focused={props.focused} />
+	</StyledPreview>
+);
