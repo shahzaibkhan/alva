@@ -66,7 +66,7 @@ const StyledEditableTitle = styled(Input)`
 `;
 
 export const PreviewTile: React.StatelessComponent<PreviewTileProps> = (props): JSX.Element => (
-	<StyledPreview onClick={props.onClick} onDoubleClick={props.onDoubleClick}>
+	<StyledPreview data-id={props.id} onClick={props.onClick} onDoubleClick={props.onDoubleClick}>
 		{props.editable ? (
 			<StyledEditableTitle
 				focused={props.focused}

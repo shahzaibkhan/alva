@@ -9,7 +9,17 @@ import { Store } from '../../store/store';
 
 @observer
 export class PageListContainer extends React.Component<{}> {
-	@MobX.observable public focusStates: boolean[] = this.setFocusStates();
+	@MobX.observable public focusStates: boolean[] = this.generateInitialFocusList(false);
+
+	@MobX.action
+	protected generateInitialFocusList(bool: boolean): boolean[] {
+		const pages = this.getPages();
+		const states: boolean[] = [];
+		pages.forEach((page: PageRef) => {
+			states.push(bool);
+		});
+		return states;
+	}
 	protected getPages(): PageRef[] {
 		const project: Project | undefined = Store.getInstance().getCurrentProject();
 		return project ? project.getPages() : [];
@@ -17,9 +27,15 @@ export class PageListContainer extends React.Component<{}> {
 
 	@MobX.action
 	protected handleClick(e: React.MouseEvent<HTMLElement>, index: number): void {
-		console.log(e.currentTarget, '**********', index);
-		this.focusStates[index] = true;
-		console.log(this.focusStates, ')))))))))))');
+		// const pages = this.getPages();
+
+		this.focusStates[index] = !this.focusStates[index];
+		this.focusStates.forEach((state, i) => {
+			// if() {
+
+			// }
+			console.log(state, ')))))))))');
+		});
 	}
 
 	public render(): JSX.Element {
@@ -30,15 +46,5 @@ export class PageListContainer extends React.Component<{}> {
 				onClick={this.handleClick}
 			/>
 		);
-	}
-
-	@MobX.action
-	protected setFocusStates(): boolean[] {
-		const pages = this.getPages();
-		const stateList: boolean[] = [];
-		pages.forEach((page: PageRef, i: number) => {
-			stateList.push(false);
-		});
-		return stateList;
 	}
 }
