@@ -1,29 +1,31 @@
 import * as MobX from 'mobx';
 import { observer } from 'mobx-react';
+
 import { PageRef } from '../../store/page/page-ref';
 import { PageTileComposite } from './page-tile-composite';
 import * as React from 'react';
 import { Store } from '../../store/store';
 
 export interface PageTileContainerProps {
+	focused: boolean;
+	onClick: React.MouseEventHandler<HTMLElement>;
 	page: PageRef;
 }
 
 @observer
 export class PageTileContainer extends React.Component<PageTileContainerProps> {
 	@MobX.observable public editable: boolean = false;
-	@MobX.observable public focused: boolean = false;
+
 	@MobX.observable public inputValue: string = '';
 
 	public constructor(props: PageTileContainerProps) {
 		super(props);
-		this.inputValue = this.inputValue ? this.inputValue : props.page.getName();
+		this.inputValue = this.inputValue ? this.inputValue : this.props.page.getName();
 
 		this.handleChange = this.handleChange.bind(this);
 		this.handleClick = this.handleClick.bind(this);
 		this.handleDoubleClick = this.handleDoubleClick.bind(this);
 		this.handleKeyDown = this.handleKeyDown.bind(this);
-		this.onFocus = this.onFocus.bind(this);
 	}
 
 	@MobX.action
@@ -38,18 +40,17 @@ export class PageTileContainer extends React.Component<PageTileContainerProps> {
 
 	@MobX.action
 	protected handleClick(e: React.MouseEvent<HTMLElement>): void {
-		console.log(e, 'please');
-		this.focused = !this.focused;
-		this.editable = false;
+		console.log('please');
+		// this.focused = !this.focused;
+		// this.editable = false;
+		this.props.onClick(e);
+		if (this.props.focused) {
+			this.editable = true;
+		}
 	}
 
-	@MobX.action
+	// @MobX.action
 	protected handleDoubleClick(e: React.MouseEvent<HTMLElement>): void {
-		e.preventDefault();
-
-		if (!this.focused) {
-			this.focused = true;
-		}
 		Store.getInstance().openPage(this.props.page.getId());
 	}
 
@@ -77,21 +78,17 @@ export class PageTileContainer extends React.Component<PageTileContainerProps> {
 		}
 	}
 
-	@MobX.action
-	protected onFocus(): void {
-		this.focused = !this.focused;
-	}
-
 	public render(): JSX.Element {
 		return (
 			<PageTileComposite
 				editable={this.editable}
-				focused={this.focused}
+				focused={this.props.focused}
 				id={this.props.page.getId()}
 				name={this.inputValue}
 				onBlur={this.handleBlur}
 				onClick={this.handleClick}
 				onDoubleClick={this.handleDoubleClick}
+				onKeyDown={this.handleKeyDown}
 				value={this.inputValue}
 			/>
 		);

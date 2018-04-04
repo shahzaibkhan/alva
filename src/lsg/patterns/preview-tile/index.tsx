@@ -76,11 +76,12 @@ export const PreviewTile: React.StatelessComponent<PreviewTileProps> = (props): 
 				type={InputTypes.string}
 				value={props.value}
 			>
-				{props.name}
+				{props.value}
 			</StyledEditableTitle>
 		) : (
 			<StyledTitle>{props.name}</StyledTitle>
 		)}
 		<StyledPreviewTile focused={props.focused} />
+		{props}
 	</StyledPreview>
 );

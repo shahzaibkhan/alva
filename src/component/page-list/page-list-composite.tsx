@@ -7,6 +7,8 @@ import { PageRef } from '../../store/page/page-ref';
 import { PageTileContainer } from './page-tile-container';
 
 export interface PageListProps {
+	focusStates: boolean[];
+	onClick: any;
 	pages: PageRef[];
 }
 
@@ -14,8 +16,15 @@ export const PageListComposite: React.StatelessComponent<PageListProps> = observ
 	(props): JSX.Element => (
 		<Layout>
 			{props.pages.map((page: PageRef, i: number) => {
-				console.log('PageListComposite pages are there');
-				return <PageTileContainer key={i} page={page} />;
+				console.log(props, 'PageListComposite pages are there');
+				return (
+					<PageTileContainer
+						focused={props.focusStates[i]}
+						key={i}
+						onClick={e => props.onClick(e, i)}
+						page={page}
+					/>
+				);
 			})}
 		</Layout>
 	)
